@@ -40,6 +40,8 @@ typedef struct
 
 } CHIP8_t;
 
+typedef enum Instruction {OP_CLS, OP_JP_Addr, OP_SET_REGS, OP_SET_IDX, OP_DRW, OP_NOT_IMPLEMENTED} Instruction;
+
 void init(CHIP8_t *emu)
 {
     // Loading the fonts into RAM
@@ -67,7 +69,7 @@ int load_rom(CHIP8_t *emu, const char *filename)
     FILE *stream_ptr = fopen(filename, "rb");
     if(stream_ptr == NULL)
     {
-        printf("\nError - File not found. returning -1");
+        printf("\nError - File not found. returning -1\n");
         return -1;
     }
 
@@ -75,7 +77,7 @@ int load_rom(CHIP8_t *emu, const char *filename)
     int seek_status = fseek(stream_ptr, 0, SEEK_END);
     if(seek_status == -1)
     {
-        printf("Error : Seek status failed, check your stream.");
+        printf("Error : Seek status failed, check your stream.\n");
         return -1;
     }
     int f_size = ftell(stream_ptr);
@@ -84,7 +86,7 @@ int load_rom(CHIP8_t *emu, const char *filename)
     //check size <= 3584, bail if not
     if(f_size > 3584)
     {
-        printf("Error : File is large and cannot fit the mem space.");
+        printf("Error : File is large and cannot fit the mem space.\n");
         return -1;
     }
 
@@ -94,21 +96,74 @@ int load_rom(CHIP8_t *emu, const char *filename)
     //     emu->RAM[0x200+i] = 0;
     // }
 
-    int items = fread(&emu->RAM[0x200], 1, f_size, stream_ptr);
-
+    int size_read = fread(&emu->RAM[0x200], 1, f_size, stream_ptr);
+    if(size_read < f_size)
+    {
+        printf("Error: size read is less than given file_size\n");
+        return -1;
+    }
     // close the file
     int close_status = fclose(stream_ptr);
     if(close_status != 0)
     {
         return -1;
     }
+
+    return 0;
 }
 
+uint16_t fetch_opcode(CHIP8_t *emu)
+{
+    uint16_t opcode;
+    uint8_t msb = emu->RAM[emu->pc];
+    uint8_t lsb = emu->RAM[emu->pc+1];
+
+    emu->pc += 2;
+    opcode = ( msb << 8 ) | lsb;        
+    /*
+        msb = 1110, lsb = 0110 
+        msb << 8 -> 1110 0000 
+
+        msb | lsb -> 1110 0000
+                     0000 0110
+                 or -----------
+                     1110 0110
+    
+    */
+
+    return opcode;
+}
+
+uint16_t decode_opcode(uint16_t *opcode, CHIP8_t *emu)
+{
+    
+    // get first nibble
+    uint16_t mask = 0xF000; // 1111 0000 0000 0000
+    uint16_t instruction_t = *opcode & mask;
+    instruction_t = instruction_t >> 12;
+
+}
 
 int main(int argc, char **argv)
 {
     CHIP8_t emu;
     init(&emu);
 
+    if(argc <= 1)
+    {
+        printf("argc test failed\n");
+        return -1;
+    }
+    else if(argc > 1)
+    {   
+        printf("argc test passed.\n");
+        if( load_rom(&emu, argv[1]) == -1)
+        {
+            printf("loading ROM failed\n");
+            return -1;
+        }
+        printf("load test passed\n");
+    }   
+    
     exit(EXIT_SUCCESS);
 }
