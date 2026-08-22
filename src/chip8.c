@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "opcodes.h"
+#include "chip8.h"
 
 uint8_t font_char[80] = 
 {
@@ -24,25 +25,9 @@ uint8_t font_char[80] =
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-typedef struct
-{
-    uint16_t cell[16];
-    uint8_t stack_ptr;
 
-} stack_t;
 
-typedef struct
-{
-    uint8_t RAM[4096];
-    uint8_t gp_regs[16];
-    uint16_t idx_regs;
-    uint16_t pc;
-    uint8_t delay_timer, sound_timer;
-    stack_t stack;
-
-} CHIP8_t;
-
-typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_REGS, OP_LOAD_IDX, OP_DRAW, OP_ADD, OP_NOT_IMPLEMENTED} Instruction_t;
+typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_REGS, OP_LOAD_IDX, OP_DRW, OP_ADD, OP_NOT_IMPLEMENTED} Instruction_t;
 
 void init(CHIP8_t *emu)
 {
@@ -63,6 +48,14 @@ void init(CHIP8_t *emu)
     emu->delay_timer = 0;
     emu->sound_timer = 0;
     emu->stack.stack_ptr = 0;
+
+    for(int i = 0; i < 32; i++)
+    {
+        for(int j = 0; j < 64; j++)
+        {
+            emu->display_arr[i][j] = false;
+        }
+    }
 }
 
 int load_rom(CHIP8_t *emu, const char *filename)
@@ -156,15 +149,15 @@ Instruction_t decode_opcode(uint16_t opcode)
                     return OP_NOT_IMPLEMENTED;
             }
         case 0x1:
-            return OP_JP_Addr;
+            return OP_JP_Addr;                  // 1nnn
         case 0x6:
-            return OP_LOAD_REGS;
+            return OP_LOAD_REGS;                // 6xkk
         case 0x7:
-            return OP_ADD;
+            return OP_ADD;                      // 7xnn
         case 0xA:
-            return OP_LOAD_IDX;
+            return OP_LOAD_IDX;                 // ANNN
         case 0xD:
-            return OP_DRAW;
+            return OP_DRW;                      // DXYN
 
         default:
             printf("OP CODE not added or do not exist\n");
