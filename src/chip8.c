@@ -25,9 +25,10 @@ uint8_t font_char[80] =
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
+// Capitals OP_CLS --> enum instructions 
+// Lowecse op_cls --> functions 
 
 
-typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_REGS, OP_LOAD_IDX, OP_DRW, OP_ADD, OP_NOT_IMPLEMENTED} Instruction_t;
 
 void init(CHIP8_t *emu)
 {
@@ -56,6 +57,7 @@ void init(CHIP8_t *emu)
             emu->display_arr[i][j] = false;
         }
     }
+    return;
 }
 
 int load_rom(CHIP8_t *emu, const char *filename)
@@ -168,9 +170,57 @@ Instruction_t decode_opcode(uint16_t opcode)
 
 void execute_opcode(CHIP8_t *emu, uint16_t opcode, Instruction_t instruction)
 {
-    
+    switch(instruction)
+    {
+        case OP_CLS:
+            op_cls(emu);
+            break;
+        
+        case OP_ADD:
+            op_add(emu, opcode);
+            break;
+
+        case OP_DRW:
+            op_draw(emu, opcode);
+            break;
+
+        case OP_JP_Addr:
+            op_jump_addr(emu, opcode);
+            break;
+
+        case OP_LOAD_IDX:
+            op_load_idx(emu, opcode);
+            break;
+
+        case OP_LOAD_REGS:
+            op_load_regs(emu, opcode);
+            break;
+
+        case OP_NOT_IMPLEMENTED:
+            printf("Opcode not implemented or invalid\n");
+            break;
+
+    }
 }
 
+void render_display(CHIP8_t *emu)
+{
+    for (int i = 0; i < 32; i++)          // for each row
+    {
+        for (int j = 0; j < 64; j++)      // each column in that row
+        {
+            if (emu->display_arr[i][j] == true)
+            {
+                printf("█");
+            }
+            else
+            {
+                printf(" ");
+            }
+        }
+        printf("\n");                     // move to next line after finishing a row
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -193,5 +243,12 @@ int main(int argc, char **argv)
         printf("load test passed\n");
     }   
     
+    for(int i = 0; i < 30; i++)
+    {
+        uint16_t opcode = fetch_opcode(&emu);
+        Instruction_t instruction = decode_opcode(opcode);
+        execute_opcode(&emu, opcode, instruction);
+    }
+    render_display(&emu);
     exit(EXIT_SUCCESS);
 }
