@@ -28,7 +28,29 @@ uint8_t font_char[80] =
 // Capitals OP_CLS --> enum instructions 
 // Lowecse op_cls --> functions 
 
+void stack_push(CHIP8_t *emu, uint16_t addr)
+{   
+    if(emu->stack.stack_ptr >= 15)
+    {
+        printf("Stack Overflow\n");
+        return;
+    }
+    emu->stack.cell[++emu->stack.stack_ptr] = addr;
+}
 
+uint16_t stack_pop(CHIP8_t *emu)
+{
+    uint16_t ret_addr;
+
+    if(emu->stack.stack_ptr < 0)
+    {
+        printf("Stack Underflow, no valued to pop\n");
+        return 0x0000;
+    }
+
+    ret_addr = emu->stack.cell[emu->stack.stack_ptr--];
+    return ret_addr;
+}
 
 void init(CHIP8_t *emu)
 {
@@ -48,7 +70,7 @@ void init(CHIP8_t *emu)
     emu->pc = 0x200;                            // Program starts at address 0x200
     emu->delay_timer = 0;
     emu->sound_timer = 0;
-    emu->stack.stack_ptr = 0;
+    emu->stack.stack_ptr = -1;
 
     for(int i = 0; i < 32; i++)
     {
@@ -146,6 +168,8 @@ Instruction_t decode_opcode(uint16_t opcode)
             {
                 case 0x0E0:
                     return OP_CLS;
+                case 0x0EE:
+                    return OP_RET;
                 default:
                     printf("Error: No opcode exist\n");
                     return OP_NOT_IMPLEMENTED;
@@ -160,7 +184,8 @@ Instruction_t decode_opcode(uint16_t opcode)
             return OP_LOAD_IDX;                 // ANNN
         case 0xD:
             return OP_DRW;                      // DXYN
-
+        case 0x2:
+            return OP_CALL_ADDR;                // 2NNN
         default:
             printf("OP CODE not added or do not exist\n");
             return OP_NOT_IMPLEMENTED;
@@ -199,7 +224,12 @@ void execute_opcode(CHIP8_t *emu, uint16_t opcode, Instruction_t instruction)
         case OP_NOT_IMPLEMENTED:
             printf("Opcode not implemented or invalid\n");
             break;
-
+        case OP_CALL_ADDR:
+            op_call_addr(emu, opcode);
+            break;
+        case OP_RET:
+            op_ret(emu);
+            break;
     }
 }
 
@@ -249,6 +279,8 @@ int main(int argc, char **argv)
         Instruction_t instruction = decode_opcode(opcode);
         execute_opcode(&emu, opcode, instruction);
     }
+
+
     render_display(&emu);
     exit(EXIT_SUCCESS);
 }

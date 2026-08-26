@@ -7,8 +7,7 @@
 typedef struct
 {
     uint16_t cell[16];
-    uint8_t stack_ptr;
-
+    int stack_ptr;
 } stack_t;
 
 typedef struct
@@ -23,8 +22,10 @@ typedef struct
 
 } CHIP8_t;
 
-typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_REGS, OP_LOAD_IDX, OP_DRW, OP_ADD, OP_NOT_IMPLEMENTED} Instruction_t;
+typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_REGS, OP_LOAD_IDX, OP_DRW, OP_ADD, OP_CALL_ADDR, OP_RET, OP_NOT_IMPLEMENTED} Instruction_t;
 
 void init(CHIP8_t *emu);
+uint16_t stack_pop(CHIP8_t *emu);
+void stack_push(CHIP8_t *emu, uint16_t addr);
 
 #endif
