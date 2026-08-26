@@ -83,3 +83,16 @@ void op_draw(CHIP8_t *emu, uint16_t opcode)
     return;
 }
 
+void op_call_addr(CHIP8_t *emu, uint16_t opcode)
+{
+    uint16_t address = (opcode & 0x0FFF);
+    uint16_t current_pc = emu->pc;
+    stack_push(emu, current_pc);
+
+    emu->pc = address;
+}
+
+void op_ret(CHIP8_t *emu)
+{
+    emu->pc = stack_pop(emu);
+}

@@ -9,6 +9,8 @@ void op_add(CHIP8_t *emu, uint16_t opcode);
 void op_load_idx(CHIP8_t *emu, uint16_t opcode);
 void op_cls(CHIP8_t *emu);
 void op_draw(CHIP8_t *emu, uint16_t opcode);
+void op_call_addr(CHIP8_t *emu, uint16_t opcode);
+void op_ret(CHIP8_t *emu);
 
 
 #endif
