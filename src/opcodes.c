@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-void op_load_regs(CHIP8_t *emu, uint16_t opcode)
+void op_load_bytes(CHIP8_t *emu, uint16_t opcode)
 {
     uint8_t reg_number = (opcode & 0x0F00 ) >> 8;
     if(reg_number >= 16)
@@ -95,4 +95,31 @@ void op_call_addr(CHIP8_t *emu, uint16_t opcode)
 void op_ret(CHIP8_t *emu)
 {
     emu->pc = stack_pop(emu);
+}
+
+void op_load_regs(CHIP8_t *emu, uint16_t opcode)
+{
+    uint8_t Vy = emu->gp_regs[(opcode & 0x00F0) >> 4];
+    emu->gp_regs[(opcode & 0x0F00) >> 8] = Vy;
+}
+
+void op_or(CHIP8_t *emu, uint16_t opcode)
+{
+    uint16_t Vx = (opcode & 0x0F00) >> 8;
+    uint16_t Vy = (opcode & 0x00F0) >> 4;
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] | emu->gp_regs[Vy];
+}
+
+void op_and(CHIP8_t *emu, uint16_t opcode)
+{
+    uint16_t Vx = (opcode & 0x0F00) >> 8;
+    uint16_t Vy = (opcode & 0x00F0) >> 4;
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] & emu->gp_regs[Vy];
+}
+
+void op_xor(CHIP8_t *emu, uint16_t opcode)
+{
+    uint16_t Vx = (opcode & 0x0F00) >> 8;
+    uint16_t Vy = (opcode & 0x00F0) >> 4;
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] ^ emu->gp_regs[Vy];
 }

@@ -177,7 +177,7 @@ Instruction_t decode_opcode(uint16_t opcode)
         case 0x1:
             return OP_JP_Addr;                  // 1nnn
         case 0x6:
-            return OP_LOAD_REGS;                // 6xkk
+            return OP_LOAD_BYTES;                // 6xkk
         case 0x7:
             return OP_ADD;                      // 7xnn
         case 0xA:
@@ -186,7 +186,38 @@ Instruction_t decode_opcode(uint16_t opcode)
             return OP_DRW;                      // DXYN
         case 0x2:
             return OP_CALL_ADDR;                // 2NNN
-        default:
+        case 0x8:
+            switch (opcode & 0x000F)
+            {
+                case 0x0:
+                    return OP_LOAD_REGS;
+                    break;
+                case 0x1:
+                    return OP_OR;               // 8xy1
+                    break;
+                case 0x2:
+                    return OP_AND;               // 8xy2
+                    break;
+                case 0x3:
+                    return OP_XOR;               // 8xy3
+                    break;
+                case 0x4:
+                    return OP_REG_ADD;               // 8xy4
+                    break;
+                case 0x5:
+                    return OP_SUB;               // 8xy5
+                    break;
+                case 0x6:
+                    return OP_SHR;               // 8xy6
+                    break;
+                case 0x7:
+                    return OP_SUBN;               // 8xy7
+                    break;
+                case 0xE:
+                    return OP_SHL;               // 8xyE
+                    break;
+            }
+            default:
             printf("OP CODE not added or do not exist\n");
             return OP_NOT_IMPLEMENTED;
 
@@ -217,19 +248,49 @@ void execute_opcode(CHIP8_t *emu, uint16_t opcode, Instruction_t instruction)
             op_load_idx(emu, opcode);
             break;
 
-        case OP_LOAD_REGS:
-            op_load_regs(emu, opcode);
+        case OP_LOAD_BYTES:
+            op_load_bytes(emu, opcode);
             break;
 
         case OP_NOT_IMPLEMENTED:
             printf("Opcode not implemented or invalid\n");
             break;
+
         case OP_CALL_ADDR:
             op_call_addr(emu, opcode);
             break;
         case OP_RET:
             op_ret(emu);
             break;
+
+        case OP_LOAD_REGS:
+            op_load_regs(emu, opcode);
+            break;
+            
+        case OP_OR:
+            op_or(emu);
+            break;
+        case OP_AND:
+            op_and(emu);
+            break;
+        case OP_XOR:
+            op_xor(emu);
+            break;
+        case OP_REG_ADD:
+            op_reg_add(emu);
+            break;
+        // case OP_SUB:
+        //     op_ret(emu);
+        //     break;
+        // case OP_SHR:
+        //     op_ret(emu);
+        //     break;
+        // case OP_SUBN:
+        //     op_ret(emu);
+        //     break;
+        // case OP_SHL:
+        //     op_ret(emu);
+        //     break;
     }
 }
 
