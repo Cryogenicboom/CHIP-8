@@ -22,7 +22,7 @@ typedef struct
 
 } CHIP8_t;
 
-typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_REGS, OP_LOAD_IDX, OP_DRW, OP_ADD, OP_CALL_ADDR, OP_RET, OP_NOT_IMPLEMENTED} Instruction_t;
+typedef enum Instruction_t {OP_CLS, OP_JP_Addr, OP_LOAD_BYTES, OP_LOAD_IDX, OP_DRW, OP_ADD, OP_CALL_ADDR, OP_RET, OP_OR, OP_AND, OP_XOR, OP_REG_ADD, OP_SUB, OP_SHR, OP_SUBN, OP_SHL,OP_LOAD_REGS, OP_NOT_IMPLEMENTED} Instruction_t;
 
 void init(CHIP8_t *emu);
 uint16_t stack_pop(CHIP8_t *emu);
