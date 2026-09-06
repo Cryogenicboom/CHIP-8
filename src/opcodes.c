@@ -105,21 +105,85 @@ void op_load_regs(CHIP8_t *emu, uint16_t opcode)
 
 void op_or(CHIP8_t *emu, uint16_t opcode)
 {
-    uint16_t Vx = (opcode & 0x0F00) >> 8;
-    uint16_t Vy = (opcode & 0x00F0) >> 4;
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    uint8_t Vy = (opcode & 0x00F0) >> 4;
     emu->gp_regs[Vx] = emu->gp_regs[Vx] | emu->gp_regs[Vy];
 }
 
 void op_and(CHIP8_t *emu, uint16_t opcode)
 {
-    uint16_t Vx = (opcode & 0x0F00) >> 8;
-    uint16_t Vy = (opcode & 0x00F0) >> 4;
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    uint8_t Vy = (opcode & 0x00F0) >> 4;
     emu->gp_regs[Vx] = emu->gp_regs[Vx] & emu->gp_regs[Vy];
 }
 
 void op_xor(CHIP8_t *emu, uint16_t opcode)
 {
-    uint16_t Vx = (opcode & 0x0F00) >> 8;
-    uint16_t Vy = (opcode & 0x00F0) >> 4;
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    uint8_t Vy = (opcode & 0x00F0) >> 4;
     emu->gp_regs[Vx] = emu->gp_regs[Vx] ^ emu->gp_regs[Vy];
 }
+
+void op_reg_add(CHIP8_t *emu, uint16_t opcode)
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    uint8_t Vy = (opcode & 0x00F0) >> 4;
+
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] + emu->gp_regs[Vy];
+
+    if(emu->gp_regs[Vx] > 255)
+    {
+        emu->gp_regs[15] = 0x1;       // VF
+    }
+}
+
+void op_reg_sub(CHIP8_t *emu, uint16_t opcode)
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    uint8_t Vy = (opcode & 0x00F0) >> 4;
+    
+    if(emu->gp_regs[Vx] >= emu->gp_regs[Vy])
+    {
+        emu->gp_regs[15] = 0x1;       // VF
+    }
+    else 
+    {
+        emu->gp_regs[15] = 0x0;
+    }
+
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] - emu->gp_regs[Vy];
+}
+
+void op_shr(CHIP8_t *emu, uint16_t opcode)
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    emu->gp_regs[15] =  emu->gp_regs[Vx] & 0x1;    // lsb
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] >> 1;
+
+}
+
+void op_subn(CHIP8_t *emu, uint16_t opcode)
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    uint8_t Vy = (opcode & 0x00F0) >> 4;
+    
+    if(emu->gp_regs[Vy] >= emu->gp_regs[Vx])
+    {
+        
+        emu->gp_regs[15] = 0x1;
+    }
+    else
+    {
+        emu->gp_regs[15] = 0x0;
+    }
+    emu->gp_regs[Vx] = emu->gp_regs[Vy] - emu->gp_regs[Vx];
+}
+
+void op_shl(CHIP8_t *emu, uint16_t opcode)
+{
+    uint8_t Vx = (opcode & 0x0F00) >> 8;
+    emu->gp_regs[15] =  (emu->gp_regs[Vx] & 0x80) >> 7;  //msb
+    emu->gp_regs[Vx] = emu->gp_regs[Vx] << 1;
+}
+
+

@@ -268,29 +268,29 @@ void execute_opcode(CHIP8_t *emu, uint16_t opcode, Instruction_t instruction)
             break;
             
         case OP_OR:
-            op_or(emu);
+            op_or(emu, opcode);
             break;
         case OP_AND:
-            op_and(emu);
+            op_and(emu, opcode);
             break;
         case OP_XOR:
-            op_xor(emu);
+            op_xor(emu, opcode);
             break;
         case OP_REG_ADD:
-            op_reg_add(emu);
+            op_reg_add(emu, opcode);
             break;
-        // case OP_SUB:
-        //     op_ret(emu);
-        //     break;
-        // case OP_SHR:
-        //     op_ret(emu);
-        //     break;
-        // case OP_SUBN:
-        //     op_ret(emu);
-        //     break;
-        // case OP_SHL:
-        //     op_ret(emu);
-        //     break;
+        case OP_SUB:
+            op_reg_sub(emu, opcode);
+            break;
+        case OP_SHR:
+            op_shr(emu, opcode);
+            break;
+        case OP_SUBN:
+            op_subn(emu, opcode);
+            break;
+        case OP_SHL:
+            op_shl(emu, opcode);
+            break;
     }
 }
 
