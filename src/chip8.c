@@ -1,9 +1,13 @@
+// Capitals OP_CLS --> enum instructions 
+// Lowecse op_cls --> functions 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 
 #include "opcodes.h"
 #include "chip8.h"
+#include "test.h"
 
 uint8_t font_char[80] = 
 {
@@ -25,8 +29,27 @@ uint8_t font_char[80] =
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-// Capitals OP_CLS --> enum instructions 
-// Lowecse op_cls --> functions 
+// FOR TESTING ================================================================
+
+void observe_stack(CHIP8_t *emu)
+{
+    if(emu->stack.stack_ptr <= 15 && emu->stack.stack_ptr > 0)
+    {
+            printf("\n\033[1;31mStack[%d] = {%u}\033[0m\n", emu->stack.stack_ptr-1, emu->stack.cell[emu->stack.stack_ptr-1]);
+    }
+}
+
+void print_regs(CHIP8_t *emu)
+{
+    printf("Regs-Chart\n-------------\n");
+    for(int i =0; i < 16; i++)
+    {
+        printf("\033[0;32m | [%d] %u |\033[0m\n", i, emu->gp_regs[i]);
+        printf("-------------\033[0m\n");
+    }
+}
+
+// Test end =================================================================
 
 void stack_push(CHIP8_t *emu, uint16_t addr)
 {   
@@ -35,7 +58,13 @@ void stack_push(CHIP8_t *emu, uint16_t addr)
         printf("Stack Overflow\n");
         return;
     }
+    
+
     emu->stack.cell[++emu->stack.stack_ptr] = addr;
+    
+    // TEST
+    observe_stack(emu);
+    // TEST END
 }
 
 uint16_t stack_pop(CHIP8_t *emu)
@@ -139,7 +168,7 @@ uint16_t fetch_opcode(CHIP8_t *emu)
 
     emu->pc += 2;
     opcode = ( msb << 8 ) | lsb;        
-    /*
+    /* To anyone saying this is Vibe coded, i can too write good comments. 
         msb = 1110, lsb = 0110 
         msb << 8 -> 1110 0000 
 
@@ -341,7 +370,7 @@ int main(int argc, char **argv)
         execute_opcode(&emu, opcode, instruction);
     }
 
-
+    // print_regs(&emu);
     render_display(&emu);
     exit(EXIT_SUCCESS);
 }
