@@ -129,12 +129,16 @@ void op_reg_add(CHIP8_t *emu, uint16_t opcode)
     uint8_t Vx = (opcode & 0x0F00) >> 8;
     uint8_t Vy = (opcode & 0x00F0) >> 4;
 
-    emu->gp_regs[Vx] = emu->gp_regs[Vx] + emu->gp_regs[Vy];
+    uint16_t sum = emu->gp_regs[Vx] + emu->gp_regs[Vy];
 
-    if(emu->gp_regs[Vx] > 255)
+    if(sum > 255)
     {
         emu->gp_regs[15] = 0x1;       // VF
     }
+    else{
+        emu->gp_regs[15] = 0x0;
+    }
+    emu->gp_regs[Vx] = sum & 0xFF;      // sum & 255 
 }
 
 void op_reg_sub(CHIP8_t *emu, uint16_t opcode)

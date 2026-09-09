@@ -10,6 +10,7 @@ void write_rom_test()
     fclose(fptr);
 }
 
+
 int main()
 {
     write_rom_test();

@@ -58,8 +58,6 @@ void stack_push(CHIP8_t *emu, uint16_t addr)
         printf("Stack Overflow\n");
         return;
     }
-    
-
     emu->stack.cell[++emu->stack.stack_ptr] = addr;
     
     // TEST
